@@ -24,6 +24,7 @@ type RedisMultiAdaptor[K comparable, V adaptor.Metadata] struct {
 	threshold    int
 	skipGet      bool
 	preAdaptor   adaptor.MultiAdaptor[K, V]
+	name         string
 	solutionName string
 	ttlZero      time.Duration
 }
@@ -42,6 +43,7 @@ func NewRedisMultiAdaptor[K comparable, V adaptor.Metadata](client *redis.Client
 		threshold:    opts.Threshold,
 		skipGet:      opts.SkipGet,
 		preAdaptor:   preAdaptor,
+		name:         opts.Name,
 		solutionName: opts.SolutionName,
 		ttlZero:      opts.TTLZero,
 	}
@@ -49,7 +51,7 @@ func NewRedisMultiAdaptor[K comparable, V adaptor.Metadata](client *redis.Client
 
 // Name 适配器名称
 func (c *RedisMultiAdaptor[K, V]) Name() string {
-	return "remote_redis"
+	return c.name
 }
 
 // Get 读取对象

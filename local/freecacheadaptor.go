@@ -30,6 +30,7 @@ type FreeCache[K comparable, V adaptor.Metadata] struct {
 	// 标志是否跳过获取过程
 	skipGet      bool
 	preAdaptor   adaptor.Adaptor[K, V]
+	name         string
 	solutionName string
 	ttlZero      time.Duration
 	syncer       syncer.Syncer
@@ -50,6 +51,7 @@ func NewFreeCache[K comparable, V adaptor.Metadata](icache *freecache.Cache, pre
 		threshold:    opts.Threshold,
 		skipGet:      opts.SkipGet,
 		preAdaptor:   preAdaptor,
+		name:         opts.Name,
 		solutionName: opts.SolutionName,
 		ttlZero:      opts.TTLZero,
 		syncer:       opts.Syncer,
@@ -63,9 +65,9 @@ func NewFreeCache[K comparable, V adaptor.Metadata](icache *freecache.Cache, pre
 	return cacheInst
 }
 
-// Name 适配器名称，需要在当前业务场景中保证唯一
+// Name 适配器名称
 func (c *FreeCache[K, V]) Name() string {
-	return "local_freecache"
+	return c.name
 }
 
 // Get 读取对象

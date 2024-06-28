@@ -25,6 +25,7 @@ type MultiFreeCache[K comparable, V adaptor.Metadata] struct {
 	threshold    time.Duration
 	skipGet      bool
 	preAdaptor   adaptor.MultiAdaptor[K, V]
+	name         string
 	solutionName string
 	ttlZero      time.Duration
 	syncer       syncer.Syncer
@@ -45,6 +46,7 @@ func NewMultiFreeCache[K comparable, V adaptor.Metadata](icache *freecache.Cache
 		threshold:    opts.Threshold,
 		skipGet:      opts.SkipGet,
 		preAdaptor:   preAdaptor,
+		name:         opts.Name,
 		solutionName: opts.SolutionName,
 		ttlZero:      opts.TTLZero,
 		syncer:       opts.Syncer,
@@ -59,9 +61,9 @@ func NewMultiFreeCache[K comparable, V adaptor.Metadata](icache *freecache.Cache
 
 }
 
-// Name 适配器名称，需要在当前业务场景中保证唯一
+// Name 适配器名称
 func (c *MultiFreeCache[K, V]) Name() string {
-	return "local_freecache"
+	return c.name
 }
 
 // Get 读取对象

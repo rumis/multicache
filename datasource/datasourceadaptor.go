@@ -12,8 +12,10 @@ import (
 	"golang.org/x/sync/singleflight"
 )
 
+// ErrNotFound 值不存在
 var ErrNotFound = errors.New("entry not found")
 
+// DataSourceFunc 数据源构造函数
 type DataSourceFunc[K comparable, V adaptor.Metadata] func(key K) (V, bool, error)
 
 // 类型检测
@@ -21,6 +23,7 @@ var _ adaptor.Adaptor[string, adaptor.Metadata] = (*DataSourceAdaptor[string, ad
 
 // DataSourceAdaptor 数据源
 type DataSourceAdaptor[K comparable, V adaptor.Metadata] struct {
+	name           string
 	solutionName   string
 	preAdaptor     adaptor.Adaptor[K, V]
 	dataSourceFn   DataSourceFunc[K, V]
@@ -35,6 +38,7 @@ func NewDataSourceAdaptor[K comparable, V adaptor.Metadata](preAdaptor adaptor.A
 		fn(&opts)
 	}
 	return &DataSourceAdaptor[K, V]{
+		name:           opts.Name,
 		solutionName:   opts.SolutionName,
 		preAdaptor:     preAdaptor,
 		dataSourceFn:   dsfn,
@@ -44,7 +48,7 @@ func NewDataSourceAdaptor[K comparable, V adaptor.Metadata](preAdaptor adaptor.A
 
 // Name 适配器名称，需要在当前业务场景中保证唯一
 func (c *DataSourceAdaptor[K, V]) Name() string {
-	return "datasource_database"
+	return c.name
 }
 
 // Get 读取对象

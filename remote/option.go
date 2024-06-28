@@ -7,6 +7,7 @@ type RemoteCacheOption struct {
 	TTL          time.Duration
 	Threshold    int // 单位秒
 	SkipGet      bool
+	Name         string
 	SolutionName string
 	TTLZero      time.Duration
 }
@@ -17,6 +18,7 @@ type RemoteCacheOptionFunc func(*RemoteCacheOption)
 // DefaultRemoteCacheOption 默认分布式缓存配置
 func DefaultRemoteCacheOption() RemoteCacheOption {
 	return RemoteCacheOption{
+		Name:      "remote_redis",
 		Prefix:    "mulcache_local_",
 		TTL:       time.Second * 90,
 		Threshold: 5,
@@ -49,6 +51,13 @@ func WithSkipGet(skip bool) RemoteCacheOptionFunc {
 func WithSolutionName(name string) RemoteCacheOptionFunc {
 	return func(option *RemoteCacheOption) {
 		option.SolutionName = name
+	}
+}
+
+// WithName 设置适配器名称
+func WithName(name string) RemoteCacheOptionFunc {
+	return func(option *RemoteCacheOption) {
+		option.Name = name
 	}
 }
 

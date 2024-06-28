@@ -8,6 +8,7 @@ import (
 
 // DataSourceOption 数据源配置选项
 type DataSourceOption struct {
+	Name                 string
 	SolutionName         string
 	SingleFlightWaitTime time.Duration // 单飞请求等待时间
 }
@@ -18,6 +19,7 @@ type DataSourceOptionFunc func(*DataSourceOption)
 // DefaultDataSourceOption 默认数据源配置
 func DefaultDataSourceOption() DataSourceOption {
 	return DataSourceOption{
+		Name:                 "datasource_database",
 		SolutionName:         "multicache_default",
 		SingleFlightWaitTime: 200 * time.Millisecond,
 	}
@@ -34,6 +36,13 @@ func WithSolutionName(name string) DataSourceOptionFunc {
 func WithSingleFlightWaitTime(waitTime time.Duration) DataSourceOptionFunc {
 	return func(option *DataSourceOption) {
 		option.SingleFlightWaitTime = waitTime
+	}
+}
+
+// WithName 设置适配器名称
+func WithName(name string) DataSourceOptionFunc {
+	return func(option *DataSourceOption) {
+		option.Name = name
 	}
 }
 

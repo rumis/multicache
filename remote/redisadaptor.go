@@ -23,6 +23,7 @@ type RedisAdaptor[K comparable, V adaptor.Metadata] struct {
 	ttl          time.Duration
 	threshold    int
 	preAdaptor   adaptor.Adaptor[K, V]
+	name         string
 	solutionName string
 	ttlZero      time.Duration
 }
@@ -39,6 +40,7 @@ func NewRedisAdaptor[K comparable, V adaptor.Metadata](client *redis.Client, pre
 		prefix:       opts.Prefix,
 		ttl:          opts.TTL,
 		threshold:    opts.Threshold,
+		name:         opts.Name,
 		solutionName: opts.SolutionName,
 		preAdaptor:   preAdaptor,
 		ttlZero:      opts.TTLZero,
@@ -47,7 +49,7 @@ func NewRedisAdaptor[K comparable, V adaptor.Metadata](client *redis.Client, pre
 
 // Name 适配器名称，需要在当前业务场景中保证唯一
 func (c *RedisAdaptor[K, V]) Name() string {
-	return "remote_redis"
+	return c.name
 }
 
 // Get 读取对象

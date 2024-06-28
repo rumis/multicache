@@ -10,6 +10,7 @@ import (
 	"github.com/rumis/multicache/metrics"
 )
 
+// MultiDataSourceFunc 多值数据源构造函数
 type MultiDataSourceFunc[K comparable, V adaptor.Metadata] func(keys adaptor.Keys[K]) (adaptor.Values[K, V], error)
 
 // 类型检测
@@ -17,6 +18,7 @@ var _ adaptor.MultiAdaptor[string, adaptor.Metadata] = (*DataSourceMultiAdaptor[
 
 // DataSourceMultiAdaptor 多值数据源适配器
 type DataSourceMultiAdaptor[K comparable, V adaptor.Metadata] struct {
+	name         string
 	solutionName string
 	preAdaptor   adaptor.MultiAdaptor[K, V]
 	dataSourceFn MultiDataSourceFunc[K, V]
@@ -29,6 +31,7 @@ func NewDataSourceMultiAdaptor[K comparable, V adaptor.Metadata](preAdaptor adap
 		fn(&opts)
 	}
 	return &DataSourceMultiAdaptor[K, V]{
+		name:         opts.Name,
 		solutionName: opts.SolutionName,
 		preAdaptor:   preAdaptor,
 		dataSourceFn: dsfn,
@@ -37,7 +40,7 @@ func NewDataSourceMultiAdaptor[K comparable, V adaptor.Metadata](preAdaptor adap
 
 // Name 适配器名称
 func (c *DataSourceMultiAdaptor[K, V]) Name() string {
-	return "datasource_database"
+	return c.name
 }
 
 // Get 读取对象

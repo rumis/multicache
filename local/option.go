@@ -12,6 +12,7 @@ type LocalCacheOption struct {
 	TTL          time.Duration
 	Threshold    time.Duration
 	SkipGet      bool
+	Name         string
 	SolutionName string
 	TTLZero      time.Duration
 	Syncer       syncer.Syncer
@@ -23,6 +24,7 @@ type LocalCacheOptionFunc func(*LocalCacheOption)
 // DefaultLocalCacheOption 默认本地缓存配置
 func DefaultLocalCacheOption() LocalCacheOption {
 	return LocalCacheOption{
+		Name:      "local_freecache",
 		Prefix:    "multicache_local_",
 		TTL:       time.Second * 30,
 		Threshold: time.Second * 5,
@@ -62,6 +64,13 @@ func WithSkipGet(skip bool) LocalCacheOptionFunc {
 func WithSolutionName(name string) LocalCacheOptionFunc {
 	return func(option *LocalCacheOption) {
 		option.SolutionName = name
+	}
+}
+
+// WithName 适配器名称
+func WithName(name string) LocalCacheOptionFunc {
+	return func(option *LocalCacheOption) {
+		option.Name = name
 	}
 }
 

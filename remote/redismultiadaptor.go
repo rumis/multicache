@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/redis/go-redis/v9"
+	"github.com/go-redis/redis/v8"
 	"github.com/rumis/multicache/adaptor"
 	"github.com/rumis/multicache/logger"
 	"github.com/rumis/multicache/metrics"

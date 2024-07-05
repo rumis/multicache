@@ -5,10 +5,10 @@ go 1.22.3
 require (
 	github.com/alicebob/miniredis/v2 v2.33.0
 	github.com/coocood/freecache v1.2.4
+	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.6.0
 	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.54.0
-	github.com/redis/go-redis/v9 v9.5.2
 	github.com/vmihailenco/msgpack/v5 v5.4.1
 	golang.org/x/sync v0.7.0
 )

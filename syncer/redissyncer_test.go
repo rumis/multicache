@@ -24,7 +24,7 @@ func TestRedisSyncer(t *testing.T) {
 
 		t.Log("s1", s1)
 	})
-	for v := range 10 {
+	for v := 0; v < 10; v++ {
 		s := tests.Student{
 			Name: "s_" + strconv.Itoa(v),
 			Age:  v,

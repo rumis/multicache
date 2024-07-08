@@ -126,7 +126,7 @@ func TestCacheSingleflight(t *testing.T) {
 
 	var wg sync.WaitGroup
 
-	for range 5 {
+	for i := 0; i < 5; i++ {
 		wg.Add(1)
 		go func() {
 
@@ -163,7 +163,7 @@ func TestCacheLoop(t *testing.T) {
 
 	cacheInst := NewCache[string, *tests.Student]("cache_test", testLocal, testRemote, testDataSource)
 
-	for range 1000 {
+	for i := 0; i < 1000; i++ {
 		var s tests.Student
 		ok, err := cacheInst.Get(context.Background(), "张三", &s)
 		if err != nil {

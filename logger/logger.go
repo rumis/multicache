@@ -21,7 +21,11 @@ const (
 )
 
 var defaultLevel Level = LevelDebug
-var defaultLogger Logger = &LocalLogger{}
+var defaultLogger Logger
+
+func init() {
+	defaultLogger, _ = NewZapSugarLogger()
+}
 
 // SetLogger 设置日志实例
 func SetLevel(l Level) error {
@@ -43,6 +47,9 @@ func SetLogger(l Logger) error {
 
 // Debug 调试
 func Debug(format string, v ...any) {
+	if defaultLogger == nil {
+		return
+	}
 	if defaultLevel <= LevelDebug {
 		defaultLogger.Debug(format, v...)
 	}
@@ -50,6 +57,9 @@ func Debug(format string, v ...any) {
 
 // Info 信息
 func Info(format string, v ...any) {
+	if defaultLogger == nil {
+		return
+	}
 	if defaultLevel <= LevelInfo {
 		defaultLogger.Info(format, v...)
 	}
@@ -57,6 +67,9 @@ func Info(format string, v ...any) {
 
 // Warn 警告
 func Warn(format string, v ...any) {
+	if defaultLogger == nil {
+		return
+	}
 	if defaultLevel <= LevelWarn {
 		defaultLogger.Warn(format, v...)
 	}
@@ -64,6 +77,9 @@ func Warn(format string, v ...any) {
 
 // Error 错误
 func Error(format string, v ...any) {
+	if defaultLogger == nil {
+		return
+	}
 	if defaultLevel <= LevelError {
 		defaultLogger.Error(format, v...)
 	}

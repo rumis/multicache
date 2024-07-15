@@ -7,9 +7,11 @@ require (
 	github.com/coocood/freecache v1.2.4
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/google/uuid v1.6.0
+	github.com/pkg/errors v0.9.1
 	github.com/prometheus/client_golang v1.19.1
 	github.com/prometheus/common v0.54.0
 	github.com/vmihailenco/msgpack/v5 v5.4.1
+	go.uber.org/zap v1.27.0
 	golang.org/x/sync v0.7.0
 )
 
@@ -25,6 +27,7 @@ require (
 	github.com/prometheus/procfs v0.12.0 // indirect
 	github.com/vmihailenco/tagparser/v2 v2.0.0 // indirect
 	github.com/yuin/gopher-lua v1.1.1 // indirect
+	go.uber.org/multierr v1.10.0 // indirect
 	golang.org/x/sys v0.19.0 // indirect
 	google.golang.org/protobuf v1.34.0 // indirect
 )

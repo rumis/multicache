@@ -12,6 +12,7 @@ import (
 type MultiCache[K comparable, V adaptor.Metadata] struct {
 	name     string
 	adaptors []adaptor.MultiAdaptor[K, V]
+	metric   metrics.Metrics
 }
 
 // NewMultiCache 创建一个新的MultiCache对象
@@ -19,6 +20,16 @@ func NewMultiCache[K comparable, V adaptor.Metadata](name string, adaptors ...ad
 	return &MultiCache[K, V]{
 		name:     name,
 		adaptors: adaptors,
+		metric:   metrics.DefaultMetrics(),
+	}
+}
+
+// NewMultiCacheWithMetric 创建一个新的MultiCache对象，包含自定义指标计数器
+func NewMultiCacheWithMetric[K comparable, V adaptor.Metadata](name string, metric metrics.Metrics, adaptors ...adaptor.MultiAdaptor[K, V]) *MultiCache[K, V] {
+	return &MultiCache[K, V]{
+		name:     name,
+		adaptors: adaptors,
+		metric:   metric,
 	}
 }
 
@@ -26,7 +37,8 @@ func NewMultiCache[K comparable, V adaptor.Metadata](name string, adaptors ...ad
 func (c *MultiCache[K, V]) Get(ctx context.Context, keys adaptor.Keys[K], vals adaptor.Values[K, V], fn adaptor.NewValueFunc[V]) error {
 
 	ctx = context.WithValue(ctx, metrics.MetricsTraceKey, utils.UUID())
-	metrics.Start(ctx, c.name)
+	ctx = context.WithValue(ctx, metrics.MetricsClient, c.metric)
+	c.metric.Start(ctx, c.name)
 
 	tmpKeys := keys
 	for _, adap := range c.adaptors {
@@ -38,7 +50,7 @@ func (c *MultiCache[K, V]) Get(ctx context.Context, keys adaptor.Keys[K], vals a
 
 		if len(vals) == len(keys) {
 			// 读取到了所有数据
-			metrics.Summary(ctx)
+			c.metric.Summary(ctx)
 
 			// 剔除零值
 			for key, val := range vals {
@@ -60,7 +72,7 @@ func (c *MultiCache[K, V]) Get(ctx context.Context, keys adaptor.Keys[K], vals a
 		tmpKeys = missKeys
 	}
 
-	metrics.Summary(ctx)
+	c.metric.Summary(ctx)
 
 	// 剔除零值
 	for key, val := range vals {
@@ -74,6 +86,11 @@ func (c *MultiCache[K, V]) Get(ctx context.Context, keys adaptor.Keys[K], vals a
 
 // Set 向缓存中写入对象
 func (c *MultiCache[K, V]) Set(ctx context.Context, vals adaptor.ValueCol[V]) error {
+
+	ctx = context.WithValue(ctx, metrics.MetricsTraceKey, utils.UUID())
+	ctx = context.WithValue(ctx, metrics.MetricsClient, c.metric)
+	c.metric.Start(ctx, c.name)
+
 	for _, adap := range c.adaptors {
 		err := adap.Set(ctx, vals)
 		if err != nil {
@@ -81,6 +98,7 @@ func (c *MultiCache[K, V]) Set(ctx context.Context, vals adaptor.ValueCol[V]) er
 			return err
 		}
 	}
+	c.metric.Summary(ctx)
 	return nil
 }
 

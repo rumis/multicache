@@ -54,6 +54,7 @@ func (c *RedisAdaptor[K, V]) Name() string {
 
 // Get 读取对象
 func (c *RedisAdaptor[K, V]) Get(ctx context.Context, key K, value V) (bool, error) {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	startTime := time.Now()
 	missMeta := metrics.Meta{
 		AdaptorName: c.Name(),
@@ -64,21 +65,21 @@ func (c *RedisAdaptor[K, V]) Get(ctx context.Context, key K, value V) (bool, err
 	buf, err := c.rClient.Get(ctx, c.key(key)).Bytes()
 	if errors.Is(err, redis.Nil) {
 		// key不存在
-		metrics.AddMeta(ctx, missMeta)
+		metric.AddMeta(ctx, missMeta)
 		return false, nil
 	}
 	if err != nil {
-		metrics.AddMeta(ctx, missMeta)
+		metric.AddMeta(ctx, missMeta)
 		return false, err
 	}
 	// 反序列化对象
 	err = value.Decode(buf)
 	if err != nil {
-		metrics.AddMeta(ctx, missMeta)
+		metric.AddMeta(ctx, missMeta)
 		return false, err
 	}
 
-	metrics.AddMeta(ctx, metrics.Meta{
+	metric.AddMeta(ctx, metrics.Meta{
 		AdaptorName: c.Name(),
 		Key:         fmt.Sprint(key),
 		Type:        metrics.Hit,
@@ -99,6 +100,7 @@ func (c *RedisAdaptor[K, V]) Get(ctx context.Context, key K, value V) (bool, err
 
 // Set 写入对象
 func (c *RedisAdaptor[K, V]) Set(ctx context.Context, value V) error {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	startTime := time.Now()
 	ttl := c.ttl + time.Second*time.Duration(utils.SafeRand().Intn(c.threshold))
 	ttl = utils.IfExpr(value.Zero(), c.ttlZero, ttl)
@@ -110,7 +112,7 @@ func (c *RedisAdaptor[K, V]) Set(ctx context.Context, value V) error {
 
 	err = c.rClient.SetEX(ctx, c.key1(value.Key()), utils.String(valBuf), ttl).Err()
 
-	metrics.AddMeta(ctx, metrics.Meta{
+	metric.AddMeta(ctx, metrics.Meta{
 		AdaptorName: c.Name(),
 		Key:         value.Key(),
 		Type:        metrics.Set,

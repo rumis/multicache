@@ -5,10 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/rumis/multicache/adaptor"
 	"github.com/rumis/multicache/datasource"
 	"github.com/rumis/multicache/local"
+	"github.com/rumis/multicache/metrics"
 	"github.com/rumis/multicache/remote"
 	"github.com/rumis/multicache/tests"
 )
@@ -53,6 +55,33 @@ func TestMultiCache(t *testing.T) {
 	}
 	buf2, _ := json.Marshal(s2)
 	fmt.Println(string(buf2))
+
+}
+
+func TestMultiCacheSet(t *testing.T) {
+
+	testLocalMulti := MultiLocalCacheTest()
+	testRemoteMulti := MultiRemoteCacheTest(testLocalMulti)
+	testDataSourceMulti := MultiMysqlAdaptorTest(testRemoteMulti)
+
+	multiCacheInst := NewMultiCacheWithMetric[string, *tests.Student]("multicache_test", metrics.NewMetricsLogger(), testLocalMulti, testRemoteMulti, testDataSourceMulti)
+
+	err := multiCacheInst.Set(context.Background(), []*tests.Student{
+		{
+			Name: "张三",
+			Age:  18,
+			Time: time.Now().Unix(),
+		},
+		{
+			Name: "李四",
+			Age:  19,
+			Time: time.Now().Unix(),
+		},
+	})
+
+	if err != nil {
+		panic(err)
+	}
 
 }
 

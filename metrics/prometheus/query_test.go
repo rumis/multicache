@@ -6,13 +6,12 @@ import (
 	"time"
 
 	v1 "github.com/prometheus/client_golang/api/prometheus/v1"
+	"github.com/rumis/multicache/tests"
 )
-
-const queryHost = "http://172.17.0.3:9091/"
 
 func TestQuery(t *testing.T) {
 
-	query := NewQuery(WithPromHttpApiQueryHost(queryHost))
+	query := NewQuery(WithPromHttpApiQueryHost(tests.PromQueryHost()))
 	_, err := query.Query("up", time.Now())
 	if err != nil {
 		t.Error(err)
@@ -21,7 +20,7 @@ func TestQuery(t *testing.T) {
 }
 
 func TestQueryRange(t *testing.T) {
-	query := NewQuery(WithPromHttpApiQueryHost(queryHost))
+	query := NewQuery(WithPromHttpApiQueryHost(tests.PromQueryHost()))
 	_, err := query.Range("sum by(le) (increase(jiaoyan_websocket_client_message_request_time_bucket[1m]))", v1.Range{
 		Start: time.Now().Add(-time.Hour * 24),
 		End:   time.Now(),
@@ -33,7 +32,7 @@ func TestQueryRange(t *testing.T) {
 }
 
 func TestLableNames(t *testing.T) {
-	query := NewQuery(WithPromHttpApiQueryHost(queryHost))
+	query := NewQuery(WithPromHttpApiQueryHost(tests.PromQueryHost()))
 	labels, err := query.LabelNames(time.Now().Add(-time.Hour*24), time.Now(), "jiaoyan_multicache_event")
 	if err != nil {
 		t.Fatal(err)
@@ -42,7 +41,7 @@ func TestLableNames(t *testing.T) {
 }
 
 func TestLableValues(t *testing.T) {
-	query := NewQuery(WithPromHttpApiQueryHost(queryHost))
+	query := NewQuery(WithPromHttpApiQueryHost(tests.PromQueryHost()))
 	labels, err := query.LabelValues("", time.Now().Add(-time.Hour*24), time.Now())
 	if err != nil {
 		t.Error(err)
@@ -51,7 +50,7 @@ func TestLableValues(t *testing.T) {
 }
 
 func TestSeries(t *testing.T) {
-	query := NewQuery(WithPromHttpApiQueryHost(queryHost))
+	query := NewQuery(WithPromHttpApiQueryHost(tests.PromQueryHost()))
 	// jiaoyan_websocket_client_alive_count
 	// {__name__=~"job:.*"}
 	set, err := query.Series(time.Now().Add(-time.Hour*24), time.Now(), `{__name__=~"^jiaoyan_multicache.+"}`)

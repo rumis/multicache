@@ -5,11 +5,13 @@ import (
 	"math/rand"
 	"testing"
 	"time"
+
+	"github.com/rumis/multicache/tests"
 )
 
 func TestCounter(t *testing.T) {
 
-	h := "http://172.17.0.3:9091/"
+	prometheusGateWayHost := tests.PromGatewayHost()
 
 	groups := []map[string]string{{
 		"adaptor": "datasource",
@@ -33,7 +35,7 @@ func TestCounter(t *testing.T) {
 		"event":   "miss",
 	}}
 
-	counter := NewCounter("multicache", "cache_hitmiss", "multicache_test_solution", WithGatewayHost(h))
+	counter := NewCounter("multicache", "cache_hitmiss", "multicache_test_solution", WithGatewayHost(prometheusGateWayHost))
 	defer counter.Stop()
 
 	go func() {

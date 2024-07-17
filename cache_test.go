@@ -60,7 +60,7 @@ func TestCacheTwoLevel(t *testing.T) {
 
 func TestCacheThreeLevel(t *testing.T) {
 
-	// prometheusGateWayHost := "http://127.0.0.1:9091"
+	// prometheusGateWayHost := tests.PromGatewayHost()
 	// metricPrometheus := metrics.NewMetricsPrometheus("multicache", "cache_hitmiss", "multicache_test_solution", prometheus.WithGatewayHost(prometheusGateWayHost))
 	// metrics.SetMetrics(metricPrometheus)
 
@@ -155,7 +155,7 @@ func TestCacheSingleflight(t *testing.T) {
 
 func TestCacheLoop(t *testing.T) {
 
-	prometheusGateWayHost := "http://127.0.0.1:9091"
+	prometheusGateWayHost := tests.PromGatewayHost()
 	metricPrometheus := metrics.NewMetricsPrometheus("multicache", "cache_hitmiss", "multicache_test_solution", prometheus.WithGatewayHost(prometheusGateWayHost))
 	metrics.SetMetrics(metricPrometheus)
 

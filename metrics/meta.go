@@ -25,6 +25,7 @@ func MetaEventString(t MetaEvent) string {
 type ContextKey string
 
 const MetricsTraceKey = ContextKey("multicache_metrics_trace")
+const MetricsClient = ContextKey("multicache_metrics_client")
 
 // Meta 适配器单次查询结果
 type Meta struct {

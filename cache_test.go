@@ -22,6 +22,7 @@ func TestCacheTwoLevel(t *testing.T) {
 	testDataSource := DataSourceAdaptorTest(testRemote)
 
 	cacheInst := NewCache[string, *tests.Student]("cache_test", testRemote, testDataSource)
+	// cacheInst := NewCacheWithMetric[string, *tests.Student]("cache_test", metrics.NewMetricsLogger(), testRemote, testDataSource)
 
 	// 首次获取数据
 	var s tests.Student
@@ -67,7 +68,8 @@ func TestCacheThreeLevel(t *testing.T) {
 	testRemote := RemoteCacheTest(testLocal)
 	testDataSource := DataSourceAdaptorTest(testRemote)
 
-	cacheInst := NewCache[string, *tests.Student]("cache_test", testLocal, testRemote, testDataSource)
+	// cacheInst := NewCache[string, *tests.Student]("cache_test", testLocal, testRemote, testDataSource)
+	cacheInst := NewCacheWithMetric[string, *tests.Student]("cache_test", metrics.NewMetricsLogger(), testLocal, testRemote, testDataSource)
 
 	// 首次获取数据
 	var s tests.Student
@@ -177,6 +179,27 @@ func TestCacheLoop(t *testing.T) {
 	}
 
 	time.Sleep(5 * time.Second)
+
+}
+
+func TestCacheSet(t *testing.T) {
+
+	testLocal := LocalCacheTest()
+	testRemote := RemoteCacheTest(testLocal)
+	testDataSource := DataSourceAdaptorTest(testRemote)
+
+	cacheInst := NewCacheWithMetric[string, *tests.Student]("cache_set_test", metrics.NewMetricsLogger(), testLocal, testRemote, testDataSource)
+
+	s1 := tests.Student{
+		Name: "张三",
+		Age:  18,
+		Time: time.Now().UnixNano(),
+	}
+
+	err := cacheInst.Set(context.Background(), &s1)
+	if err != nil {
+		panic(err)
+	}
 
 }
 

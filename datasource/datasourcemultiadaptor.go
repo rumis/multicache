@@ -45,6 +45,7 @@ func (c *DataSourceMultiAdaptor[K, V]) Name() string {
 
 // Get 读取对象
 func (c *DataSourceMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Keys[K], vals adaptor.Values[K, V], fn adaptor.NewValueFunc[V]) (adaptor.Keys[K], error) {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	startTime := time.Now()
 	hasKeys := make(adaptor.Keys[K], 0)
 	hasValues := make(adaptor.ValueCol[V], 0)
@@ -59,7 +60,7 @@ func (c *DataSourceMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Key
 		hasKeys = append(hasKeys, key)
 		hasValues = append(hasValues, val)
 
-		metrics.AddMeta(ctx, metrics.Meta{
+		metric.AddMeta(ctx, metrics.Meta{
 			AdaptorName: c.Name(),
 			Key:         fmt.Sprint(val.Key()),
 			Type:        metrics.Hit,

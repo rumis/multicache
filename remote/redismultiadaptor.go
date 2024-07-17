@@ -57,6 +57,7 @@ func (c *RedisMultiAdaptor[K, V]) Name() string {
 // Get 读取对象
 // 暂不支持pipeline操作(集群部署)
 func (c *RedisMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Keys[K], vals adaptor.Values[K, V], fn adaptor.NewValueFunc[V]) (adaptor.Keys[K], error) {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	hasKeys := make(adaptor.Keys[K], 0)
 	hasValues := make(adaptor.ValueCol[V], 0)
 	for _, key := range keys {
@@ -70,11 +71,11 @@ func (c *RedisMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Keys[K],
 		buf, err := c.rClient.Get(ctx, c.key(key)).Bytes()
 		if errors.Is(err, redis.Nil) {
 			// key不存在
-			metrics.AddMeta(ctx, missMeta)
+			metric.AddMeta(ctx, missMeta)
 			continue
 		}
 		if err != nil {
-			metrics.AddMeta(ctx, missMeta)
+			metric.AddMeta(ctx, missMeta)
 			logger.Error(err.Error(), "solution", c.solutionName, "adaptor", c.Name(), "key", key, "event", adaptor.LogEventGet)
 			continue
 		}
@@ -82,7 +83,7 @@ func (c *RedisMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Keys[K],
 		val := fn()
 		err = val.Decode(buf)
 		if err != nil {
-			metrics.AddMeta(ctx, missMeta)
+			metric.AddMeta(ctx, missMeta)
 			logger.Error(err.Error(), "solution", c.solutionName, "adaptor", c.Name(), "key", key, "event", adaptor.LogEventGet)
 			continue
 		}
@@ -91,7 +92,7 @@ func (c *RedisMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Keys[K],
 		hasKeys = append(hasKeys, key)
 		hasValues = append(hasValues, val)
 
-		metrics.AddMeta(ctx, metrics.Meta{
+		metric.AddMeta(ctx, metrics.Meta{
 			AdaptorName: c.Name(),
 			Key:         fmt.Sprint(key),
 			Type:        metrics.Hit,
@@ -113,6 +114,7 @@ func (c *RedisMultiAdaptor[K, V]) Get(ctx context.Context, keys adaptor.Keys[K],
 
 // Set 写入对象
 func (c *RedisMultiAdaptor[K, V]) Set(ctx context.Context, vals adaptor.ValueCol[V]) error {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	for _, val := range vals {
 		startTime := time.Now()
 		// 序列化对象
@@ -131,7 +133,7 @@ func (c *RedisMultiAdaptor[K, V]) Set(ctx context.Context, vals adaptor.ValueCol
 			continue
 		}
 
-		metrics.AddMeta(ctx, metrics.Meta{
+		metric.AddMeta(ctx, metrics.Meta{
 			AdaptorName: c.Name(),
 			Key:         fmt.Sprint(key),
 			Type:        metrics.Set,

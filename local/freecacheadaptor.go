@@ -72,10 +72,11 @@ func (c *FreeCache[K, V]) Name() string {
 
 // Get 读取对象
 func (c *FreeCache[K, V]) Get(ctx context.Context, key K, value V) (bool, error) {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	startTime := time.Now()
 	// 跳过
 	if c.skipGet {
-		metrics.AddMeta(ctx, metrics.Meta{
+		metric.AddMeta(ctx, metrics.Meta{
 			AdaptorName: c.Name(),
 			Key:         fmt.Sprint(key),
 			Type:        metrics.Miss,
@@ -85,7 +86,7 @@ func (c *FreeCache[K, V]) Get(ctx context.Context, key K, value V) (bool, error)
 
 	buf, err := c.innerCache.Get(utils.Bytes(c.key(key)))
 	if errors.Is(err, freecache.ErrNotFound) {
-		metrics.AddMeta(ctx, metrics.Meta{
+		metric.AddMeta(ctx, metrics.Meta{
 			AdaptorName: c.Name(),
 			Key:         fmt.Sprint(key),
 			Type:        metrics.Miss,
@@ -94,7 +95,7 @@ func (c *FreeCache[K, V]) Get(ctx context.Context, key K, value V) (bool, error)
 		return false, nil
 	}
 	if err != nil {
-		metrics.AddMeta(ctx, metrics.Meta{
+		metric.AddMeta(ctx, metrics.Meta{
 			AdaptorName: c.Name(),
 			Key:         fmt.Sprint(key),
 			Type:        metrics.Miss,
@@ -104,7 +105,7 @@ func (c *FreeCache[K, V]) Get(ctx context.Context, key K, value V) (bool, error)
 	// 反序列化对象
 	value.Decode(buf)
 
-	metrics.AddMeta(ctx, metrics.Meta{
+	metric.AddMeta(ctx, metrics.Meta{
 		AdaptorName: c.Name(),
 		Key:         fmt.Sprint(key),
 		Type:        metrics.Hit,
@@ -124,6 +125,7 @@ func (c *FreeCache[K, V]) Get(ctx context.Context, key K, value V) (bool, error)
 
 // Set 写入对象
 func (c *FreeCache[K, V]) Set(ctx context.Context, value V) error {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	startTime := time.Now()
 	ttl := int(c.ttl.Seconds()) + utils.SafeRand().Intn(int(c.threshold.Seconds())) // 正常TTL
 	ttl = utils.IfExpr(value.Zero(), int(c.ttlZero.Seconds()), ttl)                 // 0值TTL
@@ -150,7 +152,7 @@ func (c *FreeCache[K, V]) Set(ctx context.Context, value V) error {
 		}
 	}
 
-	metrics.AddMeta(ctx, metrics.Meta{
+	metric.AddMeta(ctx, metrics.Meta{
 		AdaptorName: c.Name(),
 		Key:         value.Key(),
 		Type:        metrics.Set,

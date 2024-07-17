@@ -53,6 +53,7 @@ func (c *DataSourceAdaptor[K, V]) Name() string {
 
 // Get 读取对象
 func (c *DataSourceAdaptor[K, V]) Get(ctx context.Context, key K, value V) (bool, error) {
+	metric := ctx.Value(metrics.MetricsClient).(metrics.Metrics)
 	startTime := time.Now()
 	done := make(chan ValueWithError[V])
 	// 删除singleflight对象中的缓存
@@ -109,7 +110,7 @@ func (c *DataSourceAdaptor[K, V]) Get(ctx context.Context, key K, value V) (bool
 		return false, err
 	}
 
-	metrics.AddMeta(ctx, metrics.Meta{
+	metric.AddMeta(ctx, metrics.Meta{
 		AdaptorName: c.Name(),
 		Key:         fmt.Sprint(key),
 		Type:        metrics.Hit,

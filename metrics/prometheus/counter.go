@@ -1,6 +1,7 @@
 package prometheus
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"time"
@@ -88,9 +89,11 @@ func (c *Counter) pusher() {
 			pusher.Grouping(v.Name, v.Value)
 		}
 		// 推送
-		err := pusher.Push()
+		ctx, cfn := context.WithTimeout(context.Background(), time.Second*3)
+		err := pusher.PushContext(ctx)
 		if err != nil && c.opts.PushErrorHandle != nil {
 			c.opts.PushErrorHandle(err)
 		}
+		cfn() // 调用取消函数，防止内存泄露
 	}
 }

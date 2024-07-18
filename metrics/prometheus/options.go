@@ -61,8 +61,8 @@ func DefaultPrometheusClientOptions() PrometheusClientOptions {
 		PanicErrorHandle: func(err error) {
 			logger.Error(err.Error(), "event", LogEventPrometheusPanicErr)
 		},
-		PusherWaitingTimeout: 30 * time.Millisecond,
-		QueryTimeout:         30 * time.Second,
+		PusherWaitingTimeout: 3 * time.Millisecond,
+		QueryTimeout:         3 * time.Second,
 	}
 }
 

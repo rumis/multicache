@@ -3,6 +3,7 @@ package multicache
 import (
 	"context"
 	"fmt"
+	"strconv"
 	"sync"
 	"testing"
 	"time"
@@ -14,6 +15,7 @@ import (
 	"github.com/rumis/multicache/metrics/prometheus"
 	"github.com/rumis/multicache/remote"
 	"github.com/rumis/multicache/tests"
+	"github.com/rumis/multicache/utils"
 )
 
 func TestCacheTwoLevel(t *testing.T) {
@@ -166,8 +168,9 @@ func TestCacheLoop(t *testing.T) {
 	cacheInst := NewCache[string, *tests.Student]("cache_test", testLocal, testRemote, testDataSource)
 
 	for i := 0; i < 1000; i++ {
+		idxName := utils.SafeRand().Intn(100)
 		var s tests.Student
-		ok, err := cacheInst.Get(context.Background(), "张三", &s)
+		ok, err := cacheInst.Get(context.Background(), strconv.Itoa(idxName), &s)
 		if err != nil {
 			panic(err)
 		}
